@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from .serializer import ItemSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .models import Item
 # Create your views here.
 class create(APIView):
     permission_classes = [IsAuthenticated]
@@ -16,3 +18,14 @@ class create(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
+class delete(APIView):
+    permission_classes = [IsAuthenticated]
+    def delete(self, request, id):
+        print(9)
+        item = get_object_or_404(Item, pk=id)
+        print(10)
+        if request.user == item.author:
+            item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+                
