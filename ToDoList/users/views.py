@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from .models import User
 # Create your views here.
 class login(APIView):
-    permission_class = [AllowAny]
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
