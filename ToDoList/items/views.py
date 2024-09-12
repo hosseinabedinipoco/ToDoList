@@ -21,11 +21,20 @@ class create(APIView):
 class delete(APIView):
     permission_classes = [IsAuthenticated]
     def delete(self, request, id):
-        print(9)
         item = get_object_or_404(Item, pk=id)
-        print(10)
         if request.user == item.author:
             item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({"message": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
-                
+
+class update(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request, id):
+        item = get_object_or_404(Item, pk=id)
+        if request.user == item.author:
+            serializer = ItemSerializer(item, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
