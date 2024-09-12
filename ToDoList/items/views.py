@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Item
+from django.core.paginator import Paginator
+from django.db.models import Q, F
 # Create your views here.
 class create(APIView):
     permission_classes = [IsAuthenticated]
@@ -38,3 +40,14 @@ class update(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+        
+class getList(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        list = Item.objects.filter(Q(author=request.user) & Q(finished=False))
+        paginator = Paginator(list, 3)
+        page_number = request.GET.get('page')
+        list = paginator.get_page(page_number)
+        serializer = ItemSerializer(list, many=True)
+        return Response({'data':serializer.data, 'page':page_number}, status=status.HTTP_200_OK)        
+
